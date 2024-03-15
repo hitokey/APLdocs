@@ -2,6 +2,7 @@
 \usepackage[utf8]{inputenc}
 \input apl.tex
 
+\usepackage{alltt}
 \usepackage{mathtools}
 \usepackage{cancel}
 \usepackage{applekeys}
@@ -84,7 +85,7 @@ morecomment=[l]{⍝}
         Maybe Marcus Santos\\
     }    
     \vfill
-    \includegraphics[width=15cm]{figs/apl-keyboard.jpg}
+    \includegraphics[width=15cm]{figs/aplkb-largekeys.jpg}
     \vfill
     \vfill
 \end{titlepage}
@@ -119,7 +120,7 @@ CL-USER(2): (in-package :april)
 APRIL(3): (april-f "V ← 3.4 8.5 9.2 4.0") ; #[ ←
 
 #(3.4d0 8.5d0 9.2d0 4.0d0)
-APRIL(4): (april-f "{+/⍵ ÷ ⍴ ⍵} V") ; #w⍵, #=÷, #r⍵
+APRIL(4): (april-f "{+/⍵ ÷ ⍴ ⍵} V") ; #w⍵, #=÷, #r⍴
 6.275000000
 6.2749999999999995d0
 APRIL(5): (cl-user::exit)
@@ -448,6 +449,7 @@ CL-USER(26): @+/ (3 4 ⍴ ⍳12)  ⍝ reduce lines
 10 26 42
 #(10 26 42)
 \end{lstlisting}
+
 
 \chapter{Dyalog APL}\large
 You may want to download a fully-featured commercial
@@ -779,7 +781,7 @@ form (definition without explicit use of parameters):
 \item[fgh-fork] \verb|{X f Y} → ({X} f {Y})|
 \item[gh-atop] \verb|{  f Y} → (    f {Y})|
 \item[Agh-fork] \verb|{A f Y} → ( A  f {Y})|
-\item[commute] \verb|{X f A} → (A(⊢f⊣) X)|
+\item[commute] \verb|{X f A} → (A(⊢f⊣) {X})|
 \item[left] \verb|{⍺} → ⊣|
 \item[right] \verb|{⍵} → ⊢|
 \item[constant] \verb|{A} → ((A)⊣⊣)|
@@ -1010,8 +1012,6 @@ a socket assigned to the variable \verb|srv|.
 \paragraph{Python Side.} Receive and decode message.
 \begin{verbatim}
 >>>> aplInput= client.recv(1024)
->>>> aplInput.decode("utf-8")
-'7!= 5040 \n1 2 3 4 \n 5 6 7 8 \n'
 >>>> print(aplInput.decode("utf-8"))
 7!= 5040 
 1 2 3 4 
@@ -1081,7 +1081,169 @@ and the text is the fourth element.
  Second message from Python.
 \end{lstlisting}
 
+\section{Keyboard Practice}
+Remember the convention: \verb|#\| means
+pressing \cmdkey{\verb|\|} and produces the ⊢ symbol.
+The same rule holds for other keys.\\
 
+\includegraphics{srcfigs/split.jpg}
+
+\newpage
+\includegraphics[width=15cm]{figs/apl-keyboard.jpg}
+
+\section{Random walk}
+In the simulation below, there are 1000 data points.
+The right argument ⍵ gives the minimum stock value,
+and the left argument ⍺ represents the initial investment.
+
+\begin{lstlisting}[language=apl]
+random_walk ← {⍵ + | + \⍺, 0.5-?1000 ⍴ 0}
+      ]plot 42 random_walk 0.5
+\end{lstlisting}
+
+\includegraphics{srcfigs/random-walk.jpg}
+
+In financial economics, the random walk
+is used to model share prices. However, beware,
+as empirical studies have found deviations
+from this theoretical model in the correlations
+between short-term and long-term prices.
+
+\chapter{Reading from files}\large
+
+In this chapter, we will explore the fundamentals
+of text input. To delve deeper into this
+topic, I recommend the chapter
+titled \textbf{Dealing With The Real World} in
+the tutorial \textbf{Learning APL} by Stephen Kruger.
+
+Let's assume you typed the array shown below
+into the \verb|mat.txt| file. However, beware
+that there is no line break after the last
+line of the array.
+\begin{verbatim}
+~/apl/apldocs$ cat mat.txt 
+34 82 56.4
+12.5 8 7
+\end{verbatim}
+
+In the following session, you can observe
+how the \verb|⎕NGET| procedure reads the
+entire array into the variable \verb|m|.
+\begin{quote}
+\includegraphics{srcfigs/nget.jpg}
+\end{quote}
+However, the above code has a few intriguing
+features. It can be inferred that the
+function \verb|⍎⍤1⊢↑| converts text to an
+array of numbers. Yet, one might wonder
+why \verb|⎕NGET| is prefixed by \verb|⊃| and
+has 1 as the second argument.
+
+\newpage
+The session below demonstrates that
+using ⎕NGET without the ⊃ prefix and
+with 1 as the second argument returns
+a vector with three elements: the text
+representing the array, the encoding
+of the file, and the line separator.
+\begin{quote}
+\includegraphics{srcfigs/nget-txt.jpg}
+\end{quote}
+The hydrant $\bot\!\!\!\!\circ$  function evaluates
+a string, similar to the eval function in sbcl.
+The ↑V function transforms the nested
+vector V into an array. The ⊃V function retrieves
+the first element of the vector V. When provided
+with a left argument, as in 3 ⊃V, the dyadic
+function n⊃V returns the nth element of V.
+
+I believe that the information provided in
+this chapter is sufficient to set you on the
+right path for reading arrays from files. However,
+for a more in-depth understanding of some
+challenging concepts, I highly recommend
+reading the excellent tutorial
+\textbf{Learning APL} by Stephen Kruger.
+
+\chapter{Comma Separator Value}
+Type the file \verb|emerg.csv| that
+contains the number of applicants
+to emergency medicine since 2019.
+Remember not to introduce a line
+break after the last line.
+\begin{verbatim}
+MD,  DO, IMG
+493, 284, 152
+490, 282, 171
+500, 310, 190
+418, 260, 188
+270, 200, 189
+\end{verbatim}
+
+In the United States, there are
+three categories of candidates
+for medical residency: Medical
+Doctors (MD), Doctors of Osteopathic
+Medicine (DO), and International
+Medical Graduates (IMG). Each
+column represents one of these
+classes of doctors.
+
+In a CSV file, the elements of
+a line are separated by commas.
+There is no newline after the
+last line. Therefore, if you hit
+Enter after the last line, you
+will get an error when the file
+is processed.
+\begin{quote}
+\includegraphics{srcfigs/CSVemerg.png}
+\end{quote}
+The monadic ⎕CSV function has four
+arguments. The first argument is
+the source file name. The second
+argument is a description of the
+CSV data, which was left empty in
+the example. Next, the third
+argument specifies the column
+types, and the index 4 indicates
+that the field is to be interpreted
+as numeric, but invalid data is
+tolerated. Finally, the last
+argument indicates whether there
+is a head line or not. The
+value 1 indicates that there
+is a head line.
+\begin{quote}
+\includegraphics{srcfigs/CSV-remove-header.png}
+\end{quote}
+It is more useful to learn the total
+number of candidates in each year.
+This can be achieved by summing up
+each line of the table with +/⊃⎕CSV.
+\begin{quote}
+\includegraphics{srcfigs/CSV-sum-lines.png}
+\end{quote}
+Many European countries use the decimal
+comma to separate whole numbers from fractions.
+Therefore, the comma is not available for
+the elements of a table line. Consequently,
+a European table may look like the one shown below.
+\begin{verbatim}
+MD;  DO; IMG
+493; 284; 152
+490; 282; 171
+500; 310; 190
+418; 260; 188
+270; 200; 189
+\end{verbatim}
+
+Below, you can see how to specify
+the semicolon as the separator
+for a European table.
+\begin{quote}
+\includegraphics{srcfigs/CSV-eurosep.png}
+\end{quote}
 
 \end{document}
-
